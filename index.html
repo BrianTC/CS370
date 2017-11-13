@@ -1,0 +1,160 @@
+
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style class="webdesign101">
+      body {
+        margin: 0px;
+        padding: 3px;
+      	background: aliceblue;
+	background-image: url("snow.gif");
+	color: #8aed17;
+	font-size: large;
+	}
+	#myCanvas{
+		touch-action: none;
+	}
+	div#feetor {
+		position: absolute;
+		bottom: 0;
+		height: 60px;
+	}
+	a:visited {
+    		color: hotpink;
+	}	
+
+	button {
+    		font-size: large;
+    		color: black;
+    		/* border-color: white; */
+	}
+    </style>
+  </head>
+  <body>
+	<div id="eyesore">
+		<center>
+			<img src="./title.gif">
+		</center>
+	</div>
+	<br/>
+	<div>
+		<center>
+			Draw A Number In The Box, And Have It Fill The Whole Space Too!!!
+			<br/>
+			(Single Digits Only Though) 
+		</center>
+	</div>
+	<br/>
+  	<div id="paint">
+  		<center>
+			<canvas id="myCanvas" style="border:2px solid #32CD32"></canvas>
+		</center>
+	</div>
+	<br/>
+	<div id="control">
+		<center>
+			<button id="clear" onclick="clearCanvas()">Clear Drawing</button>
+			<button id="submit" onclick="submitArt()">Submit Sample</button>
+		<center>
+	</div>
+	<br/><br/>
+	<div id="memeOut">
+		<center>
+			<iframe id="output" src="about:blank" width="200" height="200" frameborder="0" scrolling="no"></iframe>
+		</center>
+	</div>
+	<div id="feetor">
+		<center>
+			<a href="http://toons.artie.com/alphabet/ralph/number-index.html"> Dancing Numbers from Artie.com </a>
+		
+		</center>
+	</div>
+	<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script>
+	var canvas = document.getElementById('myCanvas');
+	var ctx = canvas.getContext('2d');
+	var size = 200;
+	var painting = document.getElementById('paint');
+	var paint_style = getComputedStyle(painting);
+	canvas.width = size;
+	canvas.height = size;
+
+	var mouse = {x: 0, y: 0};
+ 
+	canvas.addEventListener('mousemove', function(e) {
+	  	mouse.x = e.pageX - this.offsetLeft;
+	  	mouse.y = e.pageY - this.offsetTop;
+	}, false);
+	canvas.addEventListener('touchmove', function(e) {
+		e=e.touches[0];
+		mouse.x = e.pageX - this.offsetLeft;
+	  	mouse.y = e.pageY - this.offsetTop;
+		//console.log(e);
+		//console.log({x:e.pageX,y:e.pageY});
+		//console.log({xO:this.offsetLeft,yO:this.offsetTop});
+		//console.log(mouse);
+
+	}, false);
+	var clearCanvas = function() {
+		ctx.beginPath();
+        	ctx.rect(0,0,size,size)
+        	ctx.fillStyle="white";
+        	ctx.fill();
+		document.getElementById('output').src="about:blank";
+	};
+	var submitArt = function(){
+		//var drawnImg = new Image();
+		var drawnImg = canvas.toDataURL("image/png");
+		//document.body.appendChild(drawnImg);
+		//return;
+		//var fdata = new FormData();
+		//fdata.append("data",drawnImg,"usersart.png");
+		$.ajax({
+  			url: './test.py',
+  			data: {
+				data : drawnImg
+			},
+  			//processData: false,
+  			//contentType: false,
+  			type: 'POST',
+  			success: function(data){
+    				document.getElementById('output').src="./numbers/arg-"+data+"-50-trans.gif";
+
+  			}
+		});
+	};
+	clearCanvas();
+	ctx.lineWidth = 10;
+	ctx.lineJoin = 'round';
+	ctx.lineCap = 'round';
+	ctx.strokeStyle = '#000000';
+	
+	canvas.addEventListener('mousedown', function(e) {
+		ctx.beginPath();
+    		ctx.moveTo(mouse.x, mouse.y);
+    		canvas.addEventListener('mousemove', onPaint, false);
+	}, false);
+	canvas.addEventListener('touchstart',function(e){
+		e=e.touches[0];
+                mouse.x = e.pageX - this.offsetLeft;
+                mouse.y = e.pageY - this.offsetTop;
+
+//		console.log("touchstart");
+		ctx.beginPath();
+		ctx.moveTo(mouse.x,mouse.y);
+		canvas.addEventListener('touchmove',onPaint,false);
+	},false);
+	canvas.addEventListener('mouseup', function() {
+    		canvas.removeEventListener('mousemove', onPaint, false);
+	}, false);
+ 	canvas.addEventListener('touchend', function() {
+    		canvas.removeEventListener('touchmove', onPaint, false);
+	}, false);
+	var onPaint = function() {
+		ctx.lineTo(mouse.x, mouse.y);
+    		ctx.stroke();
+	};
+
+    </script>
+  </body>
+</html>            
